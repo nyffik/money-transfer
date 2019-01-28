@@ -40,4 +40,15 @@ public class AccountService {
         account.withdraw(amount);
         store(account);
     }
+
+    public void transfer(String aggregateIdFrom, String aggregateIdTo, BigDecimal amount) {
+        Account load = load(aggregateIdFrom);
+        load.withdraw(amount);
+        store(load);
+
+        Account load2 = load(aggregateIdTo);
+        load2.deposit(amount);
+        store(load2);
+
+    }
 }

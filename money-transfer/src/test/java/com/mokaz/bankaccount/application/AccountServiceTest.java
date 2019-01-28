@@ -11,16 +11,23 @@ import com.mokaz.bankaccount.domain.Account;
 import com.mokaz.bankaccount.domain.AggregateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
 
     AccountQueryService accountQueryService;
     AccountService accountService;
+    @Mock
+    UIDGenerator uidGenerator;
 
     @BeforeEach
     void setUp(){
@@ -29,7 +36,8 @@ class AccountServiceTest {
         eventBus.register(new CreatedAccountEventSubscriber(accountQueryRepository));
         eventBus.register(new DepositAccountEventSubscriber(accountQueryRepository));
         eventBus.register(new WithdrawAcountEventSubscirber(accountQueryRepository));
-        accountService =  new AccountService(new AggregateService(new DomainEventStoreRepositoryImpl(), new GuavaEventPublisher(eventBus)), () -> "1");
+         when(uidGenerator.generate()).thenReturn("1");
+        accountService =  new AccountService(new AggregateService(new DomainEventStoreRepositoryImpl(), new GuavaEventPublisher(eventBus)), uidGenerator);
 
        accountQueryService  = new AccountQueryService(accountQueryRepository);
     }
@@ -83,6 +91,32 @@ class AccountServiceTest {
         assertThat(load.getOwnerName()).isEqualTo("John");
         assertThat(load.getName()).isEqualTo("account1");
         assertThat(load.getAmount()).isEqualTo("50");
+    }
+
+    @Test
+    void shouldTransferMoenyFromAccount(){
+        when(uidGenerator.generate()).thenReturn("1").thenReturn("2");
+
+        accountService.create("John", "account1");
+        accountService.deposit("1", BigDecimal.valueOf(300));
+
+
+        accountService.create("Mark", "account2");
+        accountService.deposit("2", BigDecimal.valueOf(200));
+
+
+        accountService.transfer("1", "2", BigDecimal.valueOf(250));
+
+        AccountResource load = accountQueryService.load("1");
+        assertThat(load.getOwnerName()).isEqualTo("John");
+        assertThat(load.getName()).isEqualTo("account1");
+        assertThat(load.getAmount()).isEqualTo("50");
+
+        AccountResource load2 = accountQueryService.load("2");
+        assertThat(load2.getOwnerName()).isEqualTo("Mark");
+        assertThat(load2.getName()).isEqualTo("account2");
+        assertThat(load2.getAmount()).isEqualTo("450");
+
     }
 
 }
