@@ -1,5 +1,6 @@
 package com.mokaz.bankaccount.adapter.db.query;
 
+import com.google.common.collect.ImmutableList;
 import com.mokaz.bankaccount.application.AccountQueryRepository;
 import com.mokaz.bankaccount.application.AccountResource;
 
@@ -24,6 +25,6 @@ public class AccountQueryRepositoryImpl implements AccountQueryRepository {
 
     @Override
     public List<AccountResource> findAll() {
-        return accounts.entrySet().stream().map(e->e.getValue()).collect(Collectors.toList());
+        return ImmutableList.copyOf(accounts.entrySet().stream().map(e->e.getValue()).collect(Collectors.toList()));
     }
 }

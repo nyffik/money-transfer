@@ -3,11 +3,13 @@ package com.mokaz.bankaccount.application;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 
 @Getter
 @Builder
+@ToString
 public class AccountResource {
     @NonNull
     private final  String aggregateId;

@@ -10,25 +10,23 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Controller("/account")
 @RequiredArgsConstructor
+@Slf4j
 public class AccountController {
 
     private final AccountService accountService;
-    private final AccountQueryService accountQueryService;
-
-    @Get()
-    public List<AccountResource> index() {
-        return accountQueryService.findAll();
-    }
 
     @Post(consumes = MediaType.APPLICATION_JSON)
-    public void create(@Body CreateAccountDto createAccountDto){
+    public HttpResponse create(@Body CreateAccountDto createAccountDto){
+        System.out.println(createAccountDto.getAccountName() +" " + createAccountDto.getOwnerName());
         accountService.create(createAccountDto.getOwnerName(),createAccountDto.getAccountName());
+        return HttpResponse.ok();
     }
 
     @Post(value="/deposit", consumes = MediaType.APPLICATION_JSON)
