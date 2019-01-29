@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class AccountQueryRepositoryImpl implements AccountQueryRepository {
     Map<String,AccountResource> accounts = new HashMap<>();
@@ -19,5 +20,10 @@ public class AccountQueryRepositoryImpl implements AccountQueryRepository {
     @Override
     public void store(AccountResource resource) {
         accounts.put(resource.getAggregateId(),resource);
+    }
+
+    @Override
+    public List<AccountResource> findAll() {
+        return accounts.entrySet().stream().map(e->e.getValue()).collect(Collectors.toList());
     }
 }
